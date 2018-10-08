@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	// graphqlClient    = graphql.NewClient("https://api.kubebuild.com/graphql", nil)
-	graphqlClient = graphql.NewClient("http://localhost:4000/graphql", nil)
+	graphqlClient = graphql.NewClient("https://api.kubebuild.com/graphql", nil)
+	// graphqlClient = graphql.NewClient("http://localhost:4000/graphql", nil)
 )
 
 func check(message string, e error) {
@@ -21,11 +21,12 @@ func check(message string, e error) {
 	}
 }
 func main() {
-	token := os.Getenv("TOKEN")
-	repoURL := os.Getenv("REPO_URL")
+	buildID := os.Getenv("BUILD_ID")
+	clusterToken := os.Getenv("CLUSTER_TOKEN")
+	repoURL := os.Getenv("REPO")
 	revision := os.Getenv("REVISION")
 	template := downloadPipeline(repoURL, revision)
-	updateBuild(token, template)
+	updateBuild(buildID, clusterToken, template)
 }
 
 func downloadPipeline(repoURL string, revision string) string {
@@ -38,14 +39,15 @@ func downloadPipeline(repoURL string, revision string) string {
 	return string(dat)
 }
 
-func updateBuild(token string, template string) {
+func updateBuild(buildID string, clusterToken string, template string) {
 	var buildMutation struct {
 		UpdateBuildWithPipeline struct {
 			Successful graphql.Boolean
-		} `graphql:"updateBuildWithPipeline(token: $token, template: $template, uploadPipeline: $uploadPipeline)"`
+		} `graphql:"updateClusterBuild(buildId: $buildId, clusterToken: $clusterToken, template: $template, uploadPipeline: $uploadPipeline)"`
 	}
 	variables := map[string]interface{}{
-		"token":          token,
+		"buildId":        buildID,
+		"clusterToken":   clusterToken,
 		"template":       template,
 		"uploadPipeline": false,
 	}
