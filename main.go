@@ -26,7 +26,7 @@ func main() {
 	repoURL := os.Getenv("REPO")
 	revision := os.Getenv("REVISION")
 	template := downloadPipeline(repoURL, revision)
-	updateBuild(buildID, clusterToken, template)
+	updateBuild(buildID, clusterToken, template, false)
 }
 
 func downloadPipeline(repoURL string, revision string) string {
@@ -39,7 +39,7 @@ func downloadPipeline(repoURL string, revision string) string {
 	return string(dat)
 }
 
-func updateBuild(buildID string, clusterToken string, template string) {
+func updateBuild(buildID string, clusterToken string, template string, uploadPipeline graphql.Boolean) {
 	var buildMutation struct {
 		UpdateBuildWithPipeline struct {
 			Successful graphql.Boolean
@@ -49,7 +49,7 @@ func updateBuild(buildID string, clusterToken string, template string) {
 		"buildId":        buildID,
 		"clusterToken":   clusterToken,
 		"template":       template,
-		"uploadPipeline": false,
+		"uploadPipeline": uploadPipeline,
 	}
 	err := graphqlClient.Mutate(context.Background(), &buildMutation, variables)
 	check("Failed to upload pipeline", err)
