@@ -30,11 +30,12 @@ func main() {
 }
 
 func downloadPipeline(repoURL string, revision string) string {
-	gitArchive := fmt.Sprintf("git archive --remote=%s %s .kubebuild.yaml | tar -x", repoURL, revision)
-	cmd := exec.Command("bash", "-c", gitArchive)
+	path := fmt.Sprintf("/tmp/%s", revision)
+	gitClone := fmt.Sprintf("git clone --depth=1 -o %s %s %s", revision, repoURL, path)
+	cmd := exec.Command("bash", "-c", gitClone)
 	err := cmd.Run()
 	check("Could not download .kubebuild.yaml, make sure file exists on branch", err)
-	dat, err := ioutil.ReadFile(".kubebuild.yaml")
+	dat, err := ioutil.ReadFile(fmt.Sprintf("%s/.kubebuild.yaml", path))
 	check("Failed to read .kubebuild.yaml", err)
 	return string(dat)
 }
