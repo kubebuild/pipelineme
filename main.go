@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"time"
 
+	"github.com/cenkalti/backoff"
 	"github.com/shurcooL/graphql"
 )
 
@@ -31,9 +33,18 @@ func main() {
 
 func downloadPipeline(repoURL string, revision string) string {
 	path := fmt.Sprintf("/tmp/%s", revision)
-	gitClone := fmt.Sprintf("git clone --depth=1 -o %s %s %s", revision, repoURL, path)
-	cmd := exec.Command("bash", "-c", gitClone)
-	err := cmd.Run()
+	operation := func() error {
+		gitClone := fmt.Sprintf("git clone --depth=1 -o %s %s %s", revision, repoURL, path)
+		cmd := exec.Command("bash", "-c", gitClone)
+		err := cmd.Run()
+		return err
+	}
+
+	exponentialBackOff := backoff.NewExponentialBackOff()
+	exponentialBackOff.MaxElapsedTime = 1 * time.Minute
+
+	err := backoff.Retry(operation, exponentialBackOff)
+
 	check("Could not download .kubebuild.yaml, make sure file exists on branch", err)
 	dat, err := ioutil.ReadFile(fmt.Sprintf("%s/.kubebuild.yaml", path))
 	check("Failed to read .kubebuild.yaml", err)
