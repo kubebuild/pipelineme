@@ -2,14 +2,6 @@
 
 
 [[projects]]
-<<<<<<< HEAD
-  digest = "1:2209584c0f7c9b68c23374e659357ab546e1b70eec2761f03280f69a8fd23d77"
-  name = "github.com/cenkalti/backoff"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
-  version = "v2.0.0"
-=======
   digest = "1:d1665c44bd5db19aaee18d1b6233c99b0b9a986e8bccb24ef54747547a48027f"
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
@@ -35,6 +27,14 @@
   pruneopts = "UT"
   revision = "3b52b26190163d1f72f3aef1a39f9f291378dafb"
   version = "v2.2.1"
+
+[[projects]]
+  digest = "1:553f73a4171c265045ae4f5d3122429ecf2c9c0c232c91f336127fe45480104a"
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "62661b46c4093e2c1f38d943e663db1a29873e80"
+  version = "v2.1.0"
 
 [[projects]]
   digest = "1:899234af23e5793c34e06fd397f86ba33af5307b959b6a7afd19b63db065a9d7"
@@ -149,19 +149,10 @@
   pruneopts = "UT"
   revision = "4b7aa43c6742a2c18fdef89dd197aaae7dac7ccd"
   version = "1.0.1"
->>>>>>> Add error message
 
 [[projects]]
   branch = "master"
-  digest = "1:ddaa79b37808fbd09a1c3f484bba6320c884664dfc25ccc5f2d7d5a82222177c"
-  name = "github.com/shurcooL/go"
-  packages = ["ctxhttp"]
-  pruneopts = "UT"
-  revision = "9e1955d9fb6e1ee2345ba1f5e71669263e719e27"
-
-[[projects]]
-  branch = "master"
-  digest = "1:3614a8edbfdde716ac8a9b061342278fc48d1e2dd5637dc068c5c02e95d92e1e"
+  digest = "1:ad1f867d4b1267b09945f59bb47aa51528bfcc4d1e257168f04fa3176613f286"
   name = "github.com/shurcooL/graphql"
   packages = [
     ".",
@@ -169,17 +160,9 @@
     "internal/jsonutil",
   ]
   pruneopts = "UT"
-  revision = "e4a3a37e6d42afa87afee2edeeced52300b63893"
+  revision = "16b88644589aaa174a21ae55cac72a9f60d5d837"
 
 [[projects]]
-<<<<<<< HEAD
-  branch = "master"
-  digest = "1:76ee51c3f468493aff39dbacc401e8831fbb765104cbf613b89bef01cf4bad70"
-  name = "golang.org/x/net"
-  packages = ["context"]
-  pruneopts = "UT"
-  revision = "04a2e542c03f1d053ab3e4d6e5abcd4b66e2be8e"
-=======
   digest = "1:c1b1102241e7f645bc8e0c22ae352e8f0dc6484b6cb4d132fa9f24174e0119e2"
   name = "github.com/spf13/pflag"
   packages = ["."]
@@ -189,9 +172,10 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f8292d035e3f59cbcf39fecb9ca1dd24ec20ae4f8a06750609ee4b71d60d0045"
+  digest = "1:306f13b272663febd5a507783064f9cf8e6b78be46c4a763bed5366f7af6a456"
   name = "golang.org/x/net"
   packages = [
+    "context/ctxhttp",
     "http/httpguts",
     "http2",
     "http2/hpack",
@@ -285,18 +269,14 @@
   packages = ["pkg/common"]
   pruneopts = "UT"
   revision = "0317810137be915b9cf888946c6e115c1bfac693"
->>>>>>> Add error message
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-<<<<<<< HEAD
-    "github.com/cenkalti/backoff",
-=======
     "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1",
+    "github.com/cenkalti/backoff",
     "github.com/ghodss/yaml",
->>>>>>> Add error message
     "github.com/shurcooL/graphql",
   ]
   solver-name = "gps-cdcl"

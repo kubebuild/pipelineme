@@ -45,8 +45,12 @@ func main() {
 	clusterToken := os.Getenv("CLUSTER_TOKEN")
 	repoURL := os.Getenv("REPO")
 	revision := os.Getenv("REVISION")
-	template := downloadPipeline(repoURL, revision)
-	err := validateTemplate(template)
+	template, err := downloadPipeline(repoURL, revision)
+	if err != nil {
+		errorString := err.Error()
+		updateBuild(buildID, clusterToken, Failed, template, false, &errorString)
+	}
+	err = validateTemplate(template)
 	if err != nil {
 		errorString := err.Error()
 		updateBuild(buildID, clusterToken, Failed, template, false, &errorString)
@@ -62,7 +66,7 @@ func validateTemplate(template string) error {
 	return err
 }
 
-func downloadPipeline(repoURL string, revision string) string {
+func downloadPipeline(repoURL string, revision string) (string, error) {
 	path := fmt.Sprintf("/tmp/%s", revision)
 	operation := func() error {
 		gitClone := fmt.Sprintf("git clone --depth=1 -o %s %s %s", revision, repoURL, path)
@@ -75,11 +79,15 @@ func downloadPipeline(repoURL string, revision string) string {
 	exponentialBackOff.MaxElapsedTime = 1 * time.Minute
 
 	err := backoff.Retry(operation, exponentialBackOff)
+	if err != nil {
+		return "", err
+	}
 
-	check("Could not download .kubebuild.yaml, make sure file exists on branch", err)
 	dat, err := ioutil.ReadFile(fmt.Sprintf("%s/.kubebuild.yaml", path))
-	check("Failed to read .kubebuild.yaml", err)
-	return string(dat)
+	if err != nil {
+		return "", err
+	}
+	return string(dat), nil
 }
 
 func updateBuild(buildID string, clusterToken string, state State, template string, uploadPipeline graphql.Boolean, errorMessage *string) {
