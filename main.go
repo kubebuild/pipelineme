@@ -8,8 +8,26 @@ import (
 	"os/exec"
 	"time"
 
+	wfv1 "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	"github.com/cenkalti/backoff"
 	"github.com/shurcooL/graphql"
+
+	"github.com/ghodss/yaml"
+)
+
+// State for db builds
+type State string
+
+// Workflow state
+const (
+	Scheduled State = "scheduled"
+	Running   State = "running"
+	Passed    State = "passed"
+	Skipped   State = "skipped"
+	Failed    State = "failed"
+	Canceled  State = "canceled"
+	Blocked   State = "blocked"
+	Retrying  State = "retrying"
 )
 
 var (
@@ -28,7 +46,20 @@ func main() {
 	repoURL := os.Getenv("REPO")
 	revision := os.Getenv("REVISION")
 	template := downloadPipeline(repoURL, revision)
-	updateBuild(buildID, clusterToken, template, false)
+	err := validateTemplate(template)
+	if err != nil {
+		errorString := err.Error()
+		updateBuild(buildID, clusterToken, Failed, template, false, &errorString)
+	} else {
+		updateBuild(buildID, clusterToken, Scheduled, template, false, nil)
+	}
+}
+
+func validateTemplate(template string) error {
+	var wf wfv1.Workflow
+
+	err := yaml.Unmarshal([]byte(template), &wf)
+	return err
 }
 
 func downloadPipeline(repoURL string, revision string) string {
@@ -51,17 +82,19 @@ func downloadPipeline(repoURL string, revision string) string {
 	return string(dat)
 }
 
-func updateBuild(buildID string, clusterToken string, template string, uploadPipeline graphql.Boolean) {
+func updateBuild(buildID string, clusterToken string, state State, template string, uploadPipeline graphql.Boolean, errorMessage *string) {
 	var buildMutation struct {
 		UpdateBuildWithPipeline struct {
 			Successful graphql.Boolean
-		} `graphql:"updateClusterBuild(buildId: $buildId, clusterToken: $clusterToken, template: $template, uploadPipeline: $uploadPipeline)"`
+		} `graphql:"updateClusterBuild(buildId: $buildId, clusterToken: $clusterToken, template: $template, uploadPipeline: $uploadPipeline, errorMessage: $errorMessage, state: $state)"`
 	}
 	variables := map[string]interface{}{
 		"buildId":        buildID,
 		"clusterToken":   clusterToken,
 		"template":       template,
 		"uploadPipeline": uploadPipeline,
+		"errorMessage":   errorMessage,
+		"state":          string(state),
 	}
 	err := graphqlClient.Mutate(context.Background(), &buildMutation, variables)
 	check("Failed to upload pipeline", err)

@@ -29,6 +29,10 @@
   branch = "master"
   name = "github.com/shurcooL/graphql"
 
+[[constraint]]
+  name = "github.com/argoproj/argo"
+  version = "2.2.1"
+
 [prune]
   go-tests = true
   unused-packages = true
