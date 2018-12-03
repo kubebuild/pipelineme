@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -55,16 +56,14 @@ func main() {
 		errorString := err.Error()
 		updateBuild(buildID, clusterToken, Failed, template, false, &errorString)
 	} else {
-		if len(template) < 10 {
-			errorString := "Template is null, cannot continue."
-			updateBuild(buildID, clusterToken, Failed, template, false, &errorString)
-		} else {
-			updateBuild(buildID, clusterToken, Scheduled, template, false, nil)
-		}
+		updateBuild(buildID, clusterToken, Scheduled, template, false, nil)
 	}
 }
 
 func validateTemplate(template string) error {
+	if len(template) < 10 {
+		return errors.New("template is null, cannot continue")
+	}
 	var wf wfv1.Workflow
 
 	err := yaml.Unmarshal([]byte(template), &wf)
