@@ -55,7 +55,12 @@ func main() {
 		errorString := err.Error()
 		updateBuild(buildID, clusterToken, Failed, template, false, &errorString)
 	} else {
-		updateBuild(buildID, clusterToken, Scheduled, template, false, nil)
+		if len(template) < 10 {
+			errorString := "Template is null, cannot continue."
+			updateBuild(buildID, clusterToken, Failed, template, false, &errorString)
+		} else {
+			updateBuild(buildID, clusterToken, Scheduled, template, false, nil)
+		}
 	}
 }
 
