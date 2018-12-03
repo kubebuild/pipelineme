@@ -16,6 +16,12 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+type (
+
+	// DateTime is an ISO-8601 encoded UTC date.
+	DateTime struct{ time.Time }
+)
+
 // State for db builds
 type State string
 
@@ -98,7 +104,12 @@ func updateBuild(buildID string, clusterToken string, state State, template stri
 	var buildMutation struct {
 		UpdateBuildWithPipeline struct {
 			Successful graphql.Boolean
-		} `graphql:"updateClusterBuild(buildId: $buildId, clusterToken: $clusterToken, template: $template, uploadPipeline: $uploadPipeline, errorMessage: $errorMessage, state: $state)"`
+		} `graphql:"updateClusterBuild(buildId: $buildId, clusterToken: $clusterToken, template: $template, uploadPipeline: $uploadPipeline, errorMessage: $errorMessage, state: $state, finishedAt: $finishedAt)"`
+	}
+
+	finishedAt := &DateTime{Time: time.Now().UTC()}
+	if state != Failed {
+		finishedAt = nil
 	}
 	variables := map[string]interface{}{
 		"buildId":        buildID,
@@ -107,6 +118,7 @@ func updateBuild(buildID string, clusterToken string, state State, template stri
 		"uploadPipeline": uploadPipeline,
 		"errorMessage":   errorMessage,
 		"state":          string(state),
+		"finishedAt":     finishedAt,
 	}
 	err := graphqlClient.Mutate(context.Background(), &buildMutation, variables)
 	check("Failed to upload pipeline", err)
